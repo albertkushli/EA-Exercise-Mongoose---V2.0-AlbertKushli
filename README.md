@@ -1,28 +1,21 @@
 # EA Node.js + TypeScript + Mongoose
 
-## Requisitos Previos
+## 📋 Requisits Previs
 
-Asegúrate de tener instalados los siguientes programas en tu sistema:
-
-- [Node.js](https://nodejs.org/) (versión 14.x o superior)
-- [MongoDB](https://www.mongodb.com/) (puede ser local o en la nube a través de MongoDB Atlas)
-- [npm](https://www.npmjs.com/) 
+Abans de començar, assegura't de tenir instal·lat:
+- **Node.js**: Versió 18.x o superior (recomanada v20 per compatibilitat amb ESM).
+- **MongoDB**: Una instància local en funcionament (port 27017) o una connexió a MongoDB Atlas.
+- **npm**: Gestor de paquets de Node.
+- **TypeScript**
 
 Instalar TypeScript
 ```
 npm install -g typescript
 ```
 
-## Clonar el proyecto
+## Instal·lar dependències
 
-```
-git clone https://github.com/rocmeseguer/EA-Exercise-Mongoose.git
-cd EA-Exercise-Mongoose
-```
 
-## Dependencias del proyecto
-
-Instalar Mongoose y otras dependencias
 ```
 npm install
 ```
@@ -36,27 +29,35 @@ npm install
 - **Pino**: Una librería para hacer logs
 
 
-## Estructura del proyecto
+## Estructura 
 
 ```
-├── src
-├── build
-├── package.json       # Configuración de las dependencias y scripts
-├── tsconfig.json       # Configuración de TypeScript
-├── node_modules
-├── .gitignore
-├── LICENSE
-└── README.md
+├── models/
+│   ├── user.ts          # Esquema i Interfície d'Usuari
+│   └── organization.ts  # Esquema i Interfície d'Organització
+├── services/
+│   └── userService.ts   # Lògica de negoci, CRUD i Aggregations
+├── config.ts            # Configuració centralitzada i Logger Pino
+├── main.ts              # Punt d'entrada (Seeding i Demo)
+├── package.json         # Scripts i dependències
+└── tsconfig.json        # Configuració de TypeScript
 ```
 
-## Complilación y ejecución
+## Execució
 
-Transpilar de TS a JS
+### Mode Desenvolupament
+
+Executa el projecte directament en TypeScript sense compilació manual utilitzant tsx:
+
 ```
-tsc 
+npm run dev
 ```
 
-Ejecutar JS
+### Mode Producció
+
+Transpila el codi a JavaScript i executa des de la carpeta dist:
+
 ```
-node dist/index.js
+npm run build  # Executa 'tsc'
+npm start      # Executa 'node dist/main.js'
 ```
