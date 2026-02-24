@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import * as userService from './services/userService.js';
-import { OrganizationModel } from './models/organization.js';
-import { UserModel } from './models/user.js';
+import { IOrganization, OrganizationModel } from './models/organization.js';
+import { IUser, UserModel } from './models/user.js';
 import { config, logger } from './config.js';
 
 /**
@@ -18,15 +18,15 @@ async function setupDatabase() {
         await OrganizationModel.deleteMany({});
 
         logger.info('🌱 Seeding initial data...');
-        const orgs = await OrganizationModel.insertMany([
+        const orgs: IOrganization[] = await OrganizationModel.insertMany([
             { name: 'Tech Solutions', country: 'Spain' },
             { name: 'Global Corp', country: 'USA' }
         ]);
 
-        const usersData = [
-            { name: 'Marc', email: 'm@test.com', role: 'ADMIN', organization: orgs[0]._id },
-            { name: 'Anna', email: 'a@test.com', role: 'USER', organization: orgs[0]._id },
-            { name: 'John', email: 'j@test.com', role: 'EDITOR', organization: orgs[1]._id }
+        const usersData: IUser[] = [
+            { name: 'Marc', email: 'm@test.com', role: 'ADMIN', organization: new Types.ObjectId(orgs[0]._id?.toString()) },
+            { name: 'Anna', email: 'a@test.com', role: 'USER', organization: new Types.ObjectId(orgs[0]._id?.toString()) },
+            { name: 'John', email: 'j@test.com', role: 'EDITOR', organization: new Types.ObjectId(orgs[1]._id?.toString()) }
         ];
 
         const users = await UserModel.insertMany(usersData);
@@ -57,6 +57,15 @@ async function runServiceDemo(seedUsers: any[]) {
                 org: (user.organization as any).name 
             }, 'Populate successful');
         }
+
+        //Demo CRUD: New User Creation
+        const newUser = await userService.createUser({
+            name: 'Emily',
+            email: 'e@test.com',
+            role: 'USER',
+            organization: seedUsers[0].organization
+        });
+        logger.info({ newUser }, 'New user created');
 
         // Demo Aggregation: Statistics
         const stats = await userService.getStatsByCountry();

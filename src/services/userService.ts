@@ -10,17 +10,17 @@ export const createUser = async (data: Partial<IUser>): Promise<IUser> => {
 };
 
 // READ (with Populate)
-export const getUserById = async (id: string) => {
+export const getUserById = async (id: string): Promise<IUser | null> => {
     return await UserModel.findById(id).populate('organization').lean();
 };
 
 // UPDATE
-export const updateUser = async (id: string, data: Partial<IUser>) => {
+export const updateUser = async (id: string, data: Partial<IUser>): Promise<IUser | null> => {
     return await UserModel.findByIdAndUpdate(id, data, { new: true }).lean();
 };
 
 // DELETE
-export const deleteUser = async (id: string) => {
+export const deleteUser = async (id: string): Promise<IUser | null> => {
     return await UserModel.findByIdAndDelete(id);
 };
 
