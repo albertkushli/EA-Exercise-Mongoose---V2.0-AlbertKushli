@@ -1,88 +1,53 @@
-import mongoose, { Types } from 'mongoose';
-import * as userService from './services/userService.js';
-import { IOrganization, OrganizationModel } from './models/organization.js';
-import { IUser, UserModel } from './models/user.js';
+import mongoose from 'mongoose';
+import * as projectService from './services/projectService.js';
+import { OrganizationModel } from './models/organization.js';
+import { ProjectModel } from './models/project.js';
 import { config, logger } from './config.js';
 
-/**
- * 1) SETUP DATABASE: Connection & Seeding
- * This mimics an initialization script or a test setup.
- */
-async function setupDatabase() {
-    try {
-        await mongoose.connect(config.mongoUri);
-        logger.info('🚀 Connected to MongoDB at %s', config.mongoUri);
-
-        logger.warn('🧹 Cleaning database collections...');
-        await UserModel.deleteMany({});
-        await OrganizationModel.deleteMany({});
-
-        logger.info('🌱 Seeding initial data...');
-        const orgs: IOrganization[] = await OrganizationModel.insertMany([
-            { name: 'Tech Solutions', country: 'Spain' },
-            { name: 'Global Corp', country: 'USA' }
-        ]);
-
-        const usersData: IUser[] = [
-            { name: 'Marc', email: 'm@test.com', role: 'ADMIN', organization: new Types.ObjectId(orgs[0]._id?.toString()) },
-            { name: 'Anna', email: 'a@test.com', role: 'USER', organization: new Types.ObjectId(orgs[0]._id?.toString()) },
-            { name: 'John', email: 'j@test.com', role: 'EDITOR', organization: new Types.ObjectId(orgs[1]._id?.toString()) }
-        ];
-
-        const users = await UserModel.insertMany(usersData);
-        logger.info('✅ Database ready with %d users', users.length);
-        
-        return users; // Return users to use in the demo
-    } catch (err) {
-        logger.error(err, '❌ Database setup failed');
-        throw err;
-    }
-}
-
-/**
- * 2) RUN SERVICE DEMO: Testing Business Logic
- * This mimics how a controller in Express would call our services.
- */
-async function runServiceDemo(seedUsers: any[]) {
-    try {
-        logger.info('🔍 Starting Service Layer Demo...');
-
-        // Demo CRUD: Find Populated User
-        const firstUserId = seedUsers[0]._id.toString();
-        const user = await userService.getUserById(firstUserId);
-        
-        if (user) {
-            logger.info({ 
-                name: user.name, 
-                org: (user.organization as any).name 
-            }, 'Populate successful');
-        }
-
-        //Demo CRUD: New User Creation
-        const newUser = await userService.createUser({
-            name: 'Emily',
-            email: 'e@test.com',
-            role: 'USER',
-            organization: seedUsers[0].organization
-        });
-        logger.info({ newUser }, 'New user created');
-
-        // Demo Aggregation: Statistics
-        const stats = await userService.getStatsByCountry();
-        logger.info({ stats }, 'Aggregation pipeline results');
-
-    } catch (err) {
-        logger.error(err, '❌ Service demo failed');
-    }
-}
-
-// Orchestration of the two parts
 async function start() {
     try {
-        const users = await setupDatabase();
-        await runServiceDemo(users);
+        // 1. CONEXIÓN (Usando la config del proyecto)
+        await mongoose.connect(config.mongoUri);
+        logger.info('🚀 CONNECTED TO MONGODB - PROJECT DEMO');
+
+        // 2. LIMPIEZA
+        logger.warn('清理 Cleaning database...');
+        await ProjectModel.deleteMany({});
+        await OrganizationModel.deleteMany({});
+
+        // 3. SEEDING (Creamos la organización para el proyecto)
+        const org = await OrganizationModel.create({ 
+            name: 'Laboratorios Acme', 
+            country: 'Spain' 
+        });
+
+        // 4. DEMO: CREATE
+        const newProj = await projectService.createProject({
+            name: 'Sistema de Navegación AI',
+            description: 'Desarrollo de drones inteligentes',
+            organization: org._id as any
+        });
+        logger.info({ project: newProj.name }, '✅ Project created via Service Layer');
+
+        // 5. DEMO: GET BY ID + POPULATE (REQUISITO DEL SEMINARIO)
+        const found = await projectService.getProjectById(newProj._id.toString());
+        if (found) {
+            logger.info({ 
+                projectName: found.name, 
+                orgName: (found.organization as any).name 
+            }, '🔍 Populate successful: Project linked to Organization');
+        }
+
+        // 6. DEMO: UPDATE
+        await projectService.updateProject(newProj._id.toString(), { status: 'DONE' });
+        logger.info('🆙 Status updated to DONE');
+
+        // 7. DEMO: LIST ALL (.lean)
+        const all = await projectService.listAllProjects();
+        logger.info({ total: all.length }, '📋 ListAll successful using .lean()');
+
     } catch (err) {
-        logger.fatal('Application failed to start');
+        logger.error(err, '❌ Demo failed');
     } finally {
         await mongoose.disconnect();
         logger.info('👋 Disconnected');
