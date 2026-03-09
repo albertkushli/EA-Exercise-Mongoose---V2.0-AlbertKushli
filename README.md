@@ -1,6 +1,6 @@
 # Exercici Mongoose V2.0 - Capa de Servei i Relacions
 
-Aquest projecte és una extensió de l'exercici de Mongoose per al seminari d'Arquitectura d'Entrega (EA). S'ha implementat una arquitectura de **Capa de Servei (Service Layer)** per gestionar la persistència de dades en una base de dades MongoDB, posant èmfasi en el tipat fort amb TypeScript i la gestió de relacions entre col·leccions.
+Aquest projecte és una extensió de l'exercici de Mongoose. S'ha implementat una arquitectura de **Capa de Servei (Service Layer)** per gestionar la persistència de dades en una base de dades MongoDB, posant èmfasi en el tipat fort amb TypeScript i la gestió de relacions entre col·leccions.
 
 Link de Vídeo explicatiu: https://drive.google.com/file/d/1VMGVzfbAravKk_59y2FpkS-uuBuwqpU1/view?usp=sharing
 
